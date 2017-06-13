@@ -1,0 +1,77 @@
+﻿using System;
+using System.Collections.Generic;
+using DiskStore.Models;
+using DiskStore.Models.Repository;
+using System.Linq;
+//using DiskStore.Pages.Helpers;
+using System.Web.Routing;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+namespace DiskStore.Pages
+{
+    public partial class Listing : System.Web.UI.Page
+    {
+        private Repository repository = new Repository();
+        private int pageSize = 7;
+        protected int CurrentPage
+        {
+            get
+            {
+                int page;
+                //  page = int.TryParse(Request.QueryString["page"], out page) ? page : 1;
+                page = GetPageFromRequest();
+                return page > MaxPage ? MaxPage : page;
+            }
+        }
+
+        // Новое свойство, возвращающее наибольший номер допустимой страницы
+        protected int MaxPage
+        {
+            get
+            {
+                //return (int)Math.Ceiling((decimal)repository.Disks.Count() / pageSize);
+                int prodCount = FilterDisks().Count();
+                return (int)Math.Ceiling((decimal)prodCount / pageSize);
+
+            }
+        }
+
+
+        private int GetPageFromRequest()
+        {
+            int page;
+            string reqValue = (string)RouteData.Values["page"] ??
+                Request.QueryString["page"];
+            return reqValue != null && int.TryParse(reqValue, out page) ? page : 1;
+
+
+
+        }
+         
+        protected IEnumerable<Disk> GetDisks()
+        {
+            //return repository.Disks
+            return FilterDisks()
+              .OrderBy(g => g.Id)
+              .Skip((CurrentPage - 1) * pageSize)
+              .Take(pageSize);
+        }
+        // Новый вспомогательный метод для фильтрации дисков по категориям
+        private IEnumerable<Disk> FilterDisks()
+        {
+            IEnumerable<Disk> disks = repository.Disks;
+            string currentCategory = (string)RouteData.Values["category"] ??
+                Request.QueryString["category"];
+            return currentCategory == null ? disks :
+                disks.Where(p => p.Category == currentCategory);
+        }
+
+
+        protected void Page_Load(object sender, EventArgs e)
+        {
+
+        }
+    }
+}

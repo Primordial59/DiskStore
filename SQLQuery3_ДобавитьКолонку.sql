@@ -1,0 +1,1 @@
+Alter table dbo.Disks ADD Category NVARCHAR(30) NULL 

@@ -1,0 +1,51 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Listing.aspx.cs" Inherits="DiskStore.Pages.Listing" 
+     MasterPageFile="~/Pages/Store.Master" %>
+
+<%@ Import Namespace="System.Web.Routing" %>
+
+
+   <asp:Content ContentPlaceHolderID="bodyContent" runat="server">
+    <div id="content">
+        <%
+            foreach (DiskStore.Models.Disk disk in GetDisks())
+                {
+                    Response.Write(String.Format(@"
+                        <div class='item'>
+                            <h3>{6}. {0}</h3>
+                            ""{1}"", Licensing:{2}, Label:{3}, Year:{4}
+                            <h4>{5:c}</h4>
+                        </div>", 
+                        disk.Artist, disk.Album, disk.Licensing, disk.Label, disk.Year, disk.Price, disk.Id));
+                }
+            %>
+        </div>
+   
+     <div class="pager">
+        <%
+          //  int NextNumb = (CurrentPage + 1) > MaxPage ? MaxPage : CurrentPage + 1;
+          //  int PrevNumb = (CurrentPage - 1) < 2 ? 1 : CurrentPage - 1;
+          //  for (int i = PrevNumb; i <= NextNumb; i++)
+                  for (int i = 1; i <= MaxPage; i++)
+          
+         //   {
+         //       Response.Write(
+         //           String.Format("<a href='/Pages/Listing.aspx?page={0}' {1} > {2} </a>",
+         //               i, i == CurrentPage ? "class='selected'" : "", i));
+         //   }
+              {
+		string category = (string)Page.RouteData.Values["category"]
+                    ?? Request.QueryString["category"];
+                string path = RouteTable.Routes.GetVirtualPath(null, null,
+                    new RouteValueDictionary() { { "page", i } }).VirtualPath;
+                Response.Write(
+                    String.Format("<a href='{0}' {1}>{2}</a>",
+                        path, i == CurrentPage ? "class='selected'" : "", i));
+              }
+
+
+
+
+        %>
+    </div>
+
+</asp:Content>
